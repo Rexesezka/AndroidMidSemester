@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.dekabrsky.androidMidSemester.R
 import io.github.dekabrsky.androidMidSemester.domain.model.Match
+import io.github.dekabrsky.androidMidSemester.presentation.ui.common.EmptyState
 import io.github.dekabrsky.androidMidSemester.presentation.ui.common.ErrorState
 import io.github.dekabrsky.androidMidSemester.presentation.ui.common.LoadingState
 import org.koin.androidx.compose.koinViewModel
@@ -59,12 +60,16 @@ fun MatchesScreen(
             when (val current = state) {
                 MatchesUiState.Loading -> LoadingState()
                 is MatchesUiState.Error -> ErrorState(message = current.message)
-                is MatchesUiState.Content -> LazyColumn {
-                    items(current.matches, key = { it.id }) { match ->
-                        MatchListItem(
-                            match = match,
-                            onClick = onMatchClick,
-                        )
+                is MatchesUiState.Content -> if (current.matches.isEmpty()) {
+                    EmptyState(message = "На эту дату матчей нет")
+                } else {
+                    LazyColumn {
+                        items(current.matches, key = { it.id }) { match ->
+                            MatchListItem(
+                                match = match,
+                                onClick = onMatchClick,
+                            )
+                        }
                     }
                 }
             }
