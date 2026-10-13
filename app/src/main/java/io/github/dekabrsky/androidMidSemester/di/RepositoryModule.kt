@@ -3,17 +3,21 @@ package io.github.dekabrsky.androidMidSemester.di
 import io.github.dekabrsky.androidMidSemester.data.cache.MatchesCache
 import io.github.dekabrsky.androidMidSemester.data.repository.EspnMatchRepositoryImpl
 import io.github.dekabrsky.androidMidSemester.data.repository.MatchRepositoryImpl
+import io.github.dekabrsky.androidMidSemester.data.repository.TeamRepositoryImpl
+import io.github.dekabrsky.androidMidSemester.data.selection.TeamSelectionStore
 import io.github.dekabrsky.androidMidSemester.domain.repository.MatchRepository
+import io.github.dekabrsky.androidMidSemester.domain.repository.TeamRepository
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val repositoryModule = module {
     single { MatchesCache() }
+    single { TeamSelectionStore() }
 
-    // Текущий поставщик данных — ESPN.
-    single<MatchRepository> { EspnMatchRepositoryImpl(get(), get()) }
+    // Бизнес вернулся на sstats — он же умеет отдавать список команд.
+    single<MatchRepository> { MatchRepositoryImpl(get(), get()) }
+    single<TeamRepository> { TeamRepositoryImpl(get()) }
 
-    // Прежний поставщик sstats оставлен на случай возврата бизнеса:
-    // чтобы вернуться, достаточно поменять биндинг MatchRepository на этот бин.
-    single(named("sstats")) { MatchRepositoryImpl(get(), get()) }
+    // Прежний поставщик ESPN оставлен на случай очередной смены бизнес-требований.
+    single(named("espn")) { EspnMatchRepositoryImpl(get(), get()) }
 }
